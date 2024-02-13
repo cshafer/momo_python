@@ -4,7 +4,7 @@ import scipy
 import matplotlib.pyplot as plt
 import cmath
 
-def TSB(lamba,theta):
+def TSB(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
@@ -13,7 +13,7 @@ def TSB(lamba,theta):
     TSB = TSBtop/TSBbase
     return TSB
 
-def TUB(lamba,theta):
+def TUB(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
@@ -28,7 +28,7 @@ def TUB(lamba,theta):
     TUB = TUBtop/TUBbase
     return TUB
 
-def TVB(lamba,theta):
+def TVB(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
@@ -43,7 +43,7 @@ def TVB(lamba,theta):
     TVB = TVBtop/TVBbase
     return TVB
 
-def TSC(lamba,theta):
+def TSC(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
@@ -55,7 +55,7 @@ def TSC(lamba,theta):
     TSC = k/TSCbase
     return TSC
 
-def TUC(lamba,theta):
+def TUC(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
@@ -75,7 +75,7 @@ def TUC(lamba,theta):
     TUC = TUCtop/TUCbase
     return TUC
 
-def TVC(lamba,theta):
+def TVC(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
     j2 = j ** 2 
     k = j * np.cos(theta * np.pi / 180)
