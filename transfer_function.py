@@ -1,8 +1,5 @@
 
 import numpy as np
-import scipy
-import matplotlib.pyplot as plt
-import cmath
 
 def TSB(lamba,theta, m, C, alpha):
     j = 2 * np.pi / lamba
