@@ -4,10 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft2, ifft2
 from transfer_function import TSB, TUB, TVB, TSC, TUC, TVC # These are from Ockenden
-from create_gaussian_bed import *
-import sys
-
-np.set_printoptions(threshold=sys.maxsize)
+from create_gaussian_perturbation import *
 
 # Choose between idealized experiment or a real world experiment.
 # idealized == 0 ; real world == 1;
@@ -31,15 +28,22 @@ if idealized_or_realworld == 0:
     ## |----------- 1.2 Domain setup ----------------| ##
 
     # Define properties of the domain 
-    cell_spacing_dx = 150       # [m], resolution of the domain, 150 is the resolution of BedMachine
-    x_domain_length = 30000     # [m], length of the domain in x
-    y_domain_length = 30000     # [m], length of the domain in y
+    cell_spacing = 150       # [m], resolution of the domain, 150 is the resolution of BedMachine
+    x_window_length = 30000     # [m], length of the domain in x
+    y_window_length = 30000     # [m], length of the domain in y
 
     # Non-dimensionalize the domain using mean thickness
-    cell_spacing_dx_nd = cell_spacing_dx/mean_thickness_Hmean   # [unitless], non-dimensional cell-spacing
-    x_domain_length_nd = x_domain_length/mean_thickness_Hmean   # [unitless], non-dimensional x domain
-    y_domain_length_nd = y_domain_length/mean_thickness_Hmean   # [unitless], non-dimensional y domain
+    cell_spacing_nd = cell_spacing/mean_thickness_Hmean   # [unitless], non-dimensional cell-spacing
+    x_window_length_nd = x_window_length/mean_thickness_Hmean   # [unitless], non-dimensional x domain
+    y_window_length_nd = y_window_length/mean_thickness_Hmean   # [unitless], non-dimensional y domain
     
+    # Create x-y grid using non-dimensional x and y window lengths
+    left_x = -x_window_length_nd/2
+    right_x = (x_window_length_nd/2) + 1
+    bottom_y = -y_window_length_nd/2
+    top_y = (y_window_length_nd/2) + 1
+    [x,y] = np.mgrid[left_x:right_x:cell_spacing_nd, bottom_y:top_y:cell_spacing_nd]
+
     ## |---------- 1.3 Create Bedrock Perturbation ---------------| ##
 
     # Define the amplitude and the width of a single Gaussian bed bump
@@ -52,52 +56,69 @@ if idealized_or_realworld == 0:
     bedrock_gaussian_sigmay_nd = bedrock_gaussian_sigmay/mean_thickness_Hmean   # [unitless]    , non-dimensional Gaussian width in y-direction
 
     # Create non-dimensional Gaussian bedrock perturbation delta b
-    bedrock_topg_delta_b_nd = create_gaussian_bed(bedrock_gaussian_amplitude, bedrock_gaussian_sigmax_nd, bedrock_gaussian_sigmay_nd, x_domain_length_nd, y_domain_length_nd, cell_spacing_dx_nd)
+    bedrock_topg_delta_b_nd = create_gaussian_perturbation(bedrock_gaussian_amplitude, bedrock_gaussian_sigmax_nd, bedrock_gaussian_sigmay_nd, x, y)
 
     ## |---------- 1.4 Create Slippery Patch Perturbation -----------| ##
 
     # Define the amplitude and width of a single Gaussian slippery patch
-    slip_patch_amplitude_Ac = 0         # []
-    slip_patch_x_width_sigmax = 1000    # []
-    slip_patch_y_width_sigmay = 1000    # []
+    slip_gaussian_amplitude_Ac = 10 # []
+    slip_gaussian_sigmax = 2000     # []
+    slip_gaussian_sigmay = 2000     # []
 
     # Non-dimensionalize width of Gaussian slippery patch by dividing by Hmean
+    slip_gaussian_sigmax_nd = slip_gaussian_sigmax/mean_thickness_Hmean     # [unitless]    , non-dimensinoal Gaussian width in x-direction
+    slip_gaussian_sigmay_nd = slip_gaussian_sigmay/mean_thickness_Hmean     # [unitless]
 
     # Create non-dimensional Gaussian slip perturbation delta c
-    # slippery_patch_delta_c_nd = create_gaussian_slippery_patch()
+    slippery_patch_delta_c_nd = create_gaussian_perturbation(slip_gaussian_amplitude_Ac, slip_gaussian_sigmax_nd, slip_gaussian_sigmay_nd, x, y)
 
     ## |--------- 1.5 Transform non-d perturbations to Fourier Space ----------| ##
 
     delta_b_nd_ft = fft2(bedrock_topg_delta_b_nd)       # Fourier transformed bedrock perturbation
-    #delta_c_nd_ft = fft2(slippery_path_delta_c_nd)     # Fourier transformed slip patch perturbation
+    delta_c_nd_ft = fft2(slippery_patch_delta_c_nd)     # Fourier transformed slip patch perturbation
 
     ## \---------- 1.6 Transfer Functions ----------\ ##
     # We need to get arrays of k and l to input into the transfer functions
-    ar1 = np.fft.fftfreq(bedrock_topg_delta_b_nd.shape[1], cell_spacing_dx_nd)
-    ar2 = np.fft.fftfreq(bedrock_topg_delta_b_nd.shape[0], cell_spacing_dx_nd)
+    ar1 = np.fft.fftfreq(bedrock_topg_delta_b_nd.shape[1], cell_spacing_nd)
+    ar2 = np.fft.fftfreq(bedrock_topg_delta_b_nd.shape[0], cell_spacing_nd)
     k,l = np.meshgrid(ar1,ar2)
 
     # Bed topography to surface transfer functions
     Tsb = TSB(k, l, m, slip_ratio_C, surface_slope_alpha)   # Bed B to surface expression S
     Tub = TUB(k, l, m, slip_ratio_C, surface_slope_alpha)   # Bed B to surface velocity in x direction U
     Tvb = TVB(k, l, m, slip_ratio_C, surface_slope_alpha)   # Bed B to surface velocity in y direction V
-    #Tsc = TSC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface expression S
-    #Tuc = TUC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface velocity in x direction U
-    #Tvc = TVC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface velocity in y direction V
+    Tsc = TSC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface expression S
+    Tuc = TUC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface velocity in x direction U
+    Tvc = TVC(k, l, m, slip_ratio_C, surface_slope_alpha)   # Slip C to surface velocity in y direction V
 
     # Because both k and l have zeros in them, the transfer functions return a NaN in the first [0,0] entry
     # due to division by 0. We set this value to 0 to avoid this issue.
     Tsb[0,0] = 0
     Tub[0,0] = 0
     Tvb[0,0] = 0
-    #Tsc[0,0] = 0
-    #Tuc[0,0] = 0
-    #Tvc[0,0] = 0
+    Tsc[0,0] = 0
+    Tuc[0,0] = 0
+    Tvc[0,0] = 0
 
     # Multiply transfer function output (fourier space) to bedrock and slip perturbations (also fourier space)
-    Sb_ft = Tsb * delta_b_nd_ft
-    Sb = ifft2(Sb_ft) * mean_thickness_Hmean
-    plt.imshow(Sb.real)
+    Sb_nd_ft = Tsb * delta_b_nd_ft
+    Ub_nd_ft = Tub * delta_b_nd_ft
+    Vb_nd_ft = Tvb * delta_b_nd_ft
+    Sc_nd_ft = Tsc * delta_c_nd_ft
+    Uc_nd_ft = Tuc * delta_c_nd_ft
+    Vc_nd_ft = Tvc * delta_c_nd_ft
+
+    # Take the inverse fourier transform to go from spectral to x,y space and then redimensionalize
+    Sb = ifft2(Sb_nd_ft) * mean_thickness_Hmean
+    Ub = ifft2(Ub_nd_ft) * mean_thickness_Hmean
+    Vb = ifft2(Vb_nd_ft) * mean_thickness_Hmean
+    Sc = ifft2(Sc_nd_ft) * mean_thickness_Hmean
+    Uc = ifft2(Uc_nd_ft) * mean_thickness_Hmean
+    Vc = ifft2(Vc_nd_ft) * mean_thickness_Hmean
+
+    #plt.imshow(Sc.real)
+    #plt.imshow(Uc.real)
+    plt.imshow(Vc.real)
 
 else:
     # Here run the real world experiment
