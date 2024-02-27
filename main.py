@@ -5,10 +5,15 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft2, ifft2
 from transfer_function import TSB, TUB, TVB, TSC, TUC, TVC # These are from Ockenden
 from create_gaussian_perturbation import *
+from read_bedmachine import *
+from get_surface_slope import *
+
+
+m = 1       # [unitless], slip law exponent
 
 # Choose between idealized experiment or a real world experiment.
 # idealized == 0 ; real world == 1;
-idealized_or_realworld = 0
+idealized_or_realworld = 1
 
 if idealized_or_realworld == 0:
     
@@ -19,11 +24,10 @@ if idealized_or_realworld == 0:
     # Define properties of the ice
     surface_slope_alpha = 0.002         # [unitless]    , surface slope of the ice sheet
     mean_thickness_Hmean = 1000         # [m]           , mean thickness of the ice sheet, used in non-dimensionalization
-    flow_direction_theta = 90           # [unitless]    , angle between wave vector k_hat = (k,l) and x axis
+    #flow_direction_theta = 90           # [unitless]    , angle between wave vector k_hat = (k,l) and x axis
     slip_ratio_C = 100                  # [unitless]    , mean non-dimensional slipperiness ub_bar/ud_bar
-    time_days_t = 0                     # []            , dimensional time
-    flow_law_coef_A = 0                 # []            , flow law coefficient in Glen's flow law
-    m = 1                               # [unitless]    , slip law exponent
+    #time_days_t = 0                     # []            , dimensional time
+    #flow_law_coef_A = 0                 # []            , flow law coefficient in Glen's flow law
 
     ## |----------- 1.2 Domain setup ----------------| ##
 
@@ -116,15 +120,61 @@ if idealized_or_realworld == 0:
     Uc = ifft2(Uc_nd_ft) * mean_thickness_Hmean
     Vc = ifft2(Vc_nd_ft) * mean_thickness_Hmean
 
-    #plt.imshow(Sc.real)
-    #plt.imshow(Uc.real)
-    plt.imshow(Vc.real)
+    plt.imshow(Sb.real, extent=[left_x, right_x, bottom_y, top_y])
+    #plt.imshow(Ub.real, extent=[left_x, right_x, bottom_y, top_y])
+    #plt.imshow(Vb.real, extent=[left_x, right_x, bottom_y, top_y])
+    #plt.imshow(Sc.real, extent=[left_x, right_x, bottom_y, top_y])
+    #plt.imshow(Uc.real, extent=[left_x, right_x, bottom_y, top_y])
+    #plt.imshow(Vc.real, extent=[left_x, right_x, bottom_y, top_y])
 
-else:
-    # Here run the real world experiment
-    test = 1
+else: # Run the real world experiment here
 
-    # 1. Here load bedmachine and produce predicted surface profile from BedMachine bedrock
-    # 2. Compare against bedmachine surface within  
+    # Load bedmachine and produce predicted surface profile from BedMachine bedrock
+    filepath = "C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\Greenland_BedMacine\\244470242\\BedMachineGreenland-v5.nc"
+    
+    # Define the center in polarstereographic coords and the radius limits of the region you want to look at within BedMachine
+    x_center = -121558      # [m], polarstereographic x
+    y_center = -2274477     # [m], polarstereographic y
+    radius = 30000          # [m], x and y extent from the center which defines the bounding box
 
+    # Run the read_bedmachine function to output corresponding data arrays
+    (bedrock, bedrock_error, surface, thickness, x, y) = read_bedmachine(filepath, x_center, y_center, radius)
+
+    # Get mean thickness and mean surface slope from bedmachine data
+    h_bar = np.mean(thickness)
+    surface_slope_alpha = get_surface_slope(surface)
+    slip_ratio_C = 100 ### STILL NEED TO GET A REAL VALUES FOR THIS
+
+    # Non-dimensionalized cell-spacing
+    cell_spacing = 150       # [m], resolution of the domain, 150 is the resolution of BedMachine
+    cell_spacing_nd = cell_spacing/h_bar   # [unitless], non-dimensional cell-spacing
+
+    # Non-dimensionalize bedrock topography
+    bedrock_nd = bedrock/h_bar
+
+    # Fourier transform non-dimensionalized bedrock topography
+    bedrock_nd_ft = fft2(bedrock_nd) 
+
+    # Getting k and l
+    ar1 = np.fft.fftfreq(bedrock_nd_ft.shape[1], cell_spacing_nd)
+    ar2 = np.fft.fftfreq(bedrock_nd_ft.shape[0], cell_spacing_nd)
+    k,l = np.meshgrid(ar1,ar2)
+
+    # Transfer function to the surface 
+    Tsb = TSB(k, l, m, slip_ratio_C, surface_slope_alpha)   # Bed B to surface expression S
+    
+    # Because both k and l have zeros in them, the transfer functions return a NaN in the first [0,0] entry
+    # due to division by 0. We set this value to 0 to avoid this issue.
+    Tsb[0,0] = 0
+
+    # Multiply transfer function output (fourier space) to bedrock and slip perturbations (also fourier space)
+    Sb_nd_ft = Tsb * bedrock_nd_ft
+
+    # Take the inverse fourier transform to go from spectral to x,y space and then redimensionalize
+    Sb = ifft2(Sb_nd_ft) * h_bar
+
+    plt.imshow(Sb.real)
+    #plt.imshow(surface - Sb.real, cmap="seismic")
+    #plt.imshow(surface)
+    #plt.imshow(bedrock)
 # Then here the rest of the code will run as expected
