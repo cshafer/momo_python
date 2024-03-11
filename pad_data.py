@@ -1,14 +1,14 @@
 import numpy as np
 
-def pad_data(bedrock):
-    bedrock_ud = np.flipud(bedrock)
-    bedrock_lr = np.fliplr(bedrock)
-    bedrock_corner = np.flipud(bedrock_lr)
+def pad_data(data_array):
+    data_array_ud = np.flipud(data_array)
+    data_array_lr = np.fliplr(data_array)
+    data_array_corner = np.flipud(data_array_lr)
 
-    top = np.hstack((bedrock_corner, bedrock_ud, bedrock_corner))
-    middle = np.hstack((bedrock_lr, bedrock, bedrock_lr))
-    bottom = np.hstack((bedrock_corner, bedrock_ud, bedrock_corner))
+    top = np.hstack((data_array_corner, data_array_ud, data_array_corner))
+    middle = np.hstack((data_array_lr, data_array, data_array_lr))
+    bottom = np.hstack((data_array_corner, data_array_ud, data_array_corner))
 
-    padded_bedrock = np.vstack((top, middle, bottom))
+    padded_data_array = np.vstack((top, middle, bottom))
 
-    return padded_bedrock
+    return padded_data_array
