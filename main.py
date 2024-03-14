@@ -50,7 +50,7 @@ if idealized_or_realworld == 0:
     right_x = (x_window_length_nd/2) + 1
     bottom_y = -y_window_length_nd/2
     top_y = (y_window_length_nd/2) + 1
-    [x,y] = np.mgrid[left_x:right_x:cell_spacing_nd, bottom_y:top_y:cell_spacing_nd]
+    [y,x] = np.mgrid[left_x:right_x:cell_spacing_nd, bottom_y:top_y:cell_spacing_nd]
 
     ## |---------- 1.3 Create Bedrock Perturbation ---------------| ##
 
