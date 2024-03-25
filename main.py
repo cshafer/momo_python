@@ -47,9 +47,9 @@ if idealized_or_realworld == 0:
     
     # Create x-y grid using non-dimensional x and y window lengths
     left_x = -x_window_length_nd/2
-    right_x = (x_window_length_nd/2) + 1
+    right_x = (x_window_length_nd/2) + cell_spacing_nd
     bottom_y = -y_window_length_nd/2
-    top_y = (y_window_length_nd/2) + 1
+    top_y = (y_window_length_nd/2) + cell_spacing_nd
     [y,x] = np.mgrid[left_x:right_x:cell_spacing_nd, bottom_y:top_y:cell_spacing_nd]
 
     ## |---------- 1.3 Create Bedrock Perturbation ---------------| ##
@@ -181,9 +181,9 @@ else: # Run the real world experiment here
 
     # Take the inverse fourier transform to go from spectral to x,y space and then redimensionalize
     Sb_padded = ifft2(Sb_padded_nd_ft) * h_bar + h_bar + np.mean(bedrock)
-    Sb_padded = Sb_padded_slope[120:240, 120:240] + xm * cell_spacing_nd * ALPHA
+    Sb_padded = Sb_padded[120:240, 120:240] + xm * cell_spacing_nd * ALPHA
 
-    difference_padded_slope = surface - Sb_padded_slope.real
+    difference_padded_slope = surface - Sb_padded.real
 
     #plt.imshow(Sb_slope.real)
     #plt.imshow(difference_slope, cmap="seismic")
