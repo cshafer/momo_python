@@ -13,9 +13,9 @@ def create_gaussian_perturbation(A, sigma_x, sigma_y, theta, x, y):
     '''
 
     # Define the coefficients for a general 2d gaussian distribution
-    a = (np.cos(theta)**2/2*sigma_x**2) + (np.sin(theta)**2/2*sigma_y**2)
-    b = (-np.sin(theta)*np.cos(theta)/2*sigma_x**2) + (np.sin(theta)*np.cos(theta)/2*sigma_y**2)
-    c = (np.sin(theta)**2/2*sigma_x**2) + (np.cos(theta)**2/2*sigma_y**2)
+    a = ((np.cos(theta)**2)/(2*sigma_x**2)) + ((np.sin(theta)**2)/(2*sigma_y**2))
+    b = ((-np.sin(theta)*np.cos(theta))/(2*sigma_x**2)) + ((np.sin(theta)*np.cos(theta))/(2*sigma_y**2))
+    c = ((np.sin(theta)**2)/(2*sigma_x**2)) + ((np.cos(theta)**2)/(2*sigma_y**2))
 
     # Calculate the gaussian distribution
     gaussian_perturbation = A * np.exp(-(a*(np.power(x,2)) + 2*b*(x*y) + c*(np.power(y,2))))
