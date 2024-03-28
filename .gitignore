@@ -5,3 +5,6 @@ __pycache__/get_surface_slope.cpython-312.pyc
 __pycache__/pad_data.cpython-312.pyc
 __pycache__/read_bedmachine.cpython-312.pyc
 __pycache__/transfer_function.cpython-312.pyc
+__pycache__/calculate_A.cpython-312.pyc
+__pycache__/calculate_eta.cpython-312.pyc
+__pycache__/calculate_Ud.cpython-312.pyc
