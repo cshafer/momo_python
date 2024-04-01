@@ -8,3 +8,5 @@ __pycache__/transfer_function.cpython-312.pyc
 __pycache__/calculate_A.cpython-312.pyc
 __pycache__/calculate_eta.cpython-312.pyc
 __pycache__/calculate_Ud.cpython-312.pyc
+__pycache__/get_GPS_data.cpython-312.pyc
+__pycache__/get_velocity_data.cpython-312.pyc

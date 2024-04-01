@@ -3,6 +3,7 @@
 from calculate_A import *
 from calculate_Ud import *
 from calculate_eta import *
+from get_GPS_data import *
 
 # Our goal is to come up with an A value that fits our region of study that we
 # can use to calculate deformational velocity, Ud.
@@ -21,7 +22,7 @@ from calculate_eta import *
 Hmean = 707
 rhoi = 917
 g = 9.80665
-alpha = 0.0226    # At GULL borehole, surface slope measured to be 1.3 +- 0.2 degrees (Ryser et al., 2014)
+alpha = 0.02268    # At GULL borehole, surface slope measured to be 1.3 +- 0.2 degrees (Ryser et al., 2014)
 n = 3
 secperyear = 365*24*60*60
 
@@ -69,6 +70,22 @@ print('Jeremy Linear Eta: ' + str("%.7g" % eta_jer_lin) + ' kg m^-1 s^-1)' + '  
 print('Jeremy PCHIP Eta:  ' + str("%.7g" % eta_jer_pchip) + ' kg m^-1 s^-1)' + '   Gudmundsson PCHIP Eta:  ' + str("%.7g" % (eta_gud_pchip)) + ' kg m^-1 s^-1)' )
 print('Jeremy Akima Eta:  ' + str("%.7g" % eta_jer_akima) + ' kg m^-1 s^-1)' + '   Gudmundsson Akima Eta:  ' + str("%.7g" %(eta_gud_akima)) + ' kg m^-1 s^-1)' )
 
+#--------------------------------------------------------------------
+# Calculating C from surface and deformation velocity
+
+# Using Ud that we calculated earlier, we can then determine the slip ratio C of our region
+# by getting the surface velocities
+
+GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
+v2011 = GPS2011_1h_GULL[4]
+Us = np.nanmean(v2011)
+Ub = Us - (Ud_pchip*secperyear)
+C = Ub/(Ud_pchip*secperyear)
+
+print('')
+print('Slip ratio C: ' + str(C))
+
+#--------------------------------------------------------------------
 # Here, I'm testing the different interpolations
 
 # Set mean thickness (less than or equal to maximum depth measured in the borehole)
