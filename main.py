@@ -8,12 +8,16 @@ from create_gaussian_perturbation import *
 from read_bedmachine import *
 from get_surface_slope import *
 from pad_data import *
+from calculate_A import *
+from calculate_Ud import *
+from calculate_eta import *
+from get_GPS_data import *
 
 m = 1       # [unitless], slip law exponent
 
 # Choose between idealized experiment or a real world experiment.
 # idealized == 0 ; real world == 1;
-idealized_or_realworld = 0
+idealized_or_realworld = 1
 
 if idealized_or_realworld == 0:
     
@@ -137,23 +141,45 @@ if idealized_or_realworld == 0:
 
 else: # Run the real world experiment here
 
+    # Constants
     m = 1
-    C = 1
+    n = 3
+    rhoi = 917
+    g = 9.80665
+    secperyear = 365*24*60*60
 
-    # Load bedmachine and produce predicted surface profile from BedMachine bedrock
-    filepath = "C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\Greenland_BedMacine\\244470242\\BedMachineGreenland-v5.nc"
+    # Borehole temperature data at GULL
+    tempGULL = [-0.6500, -7.7500, -11.2700, -11.9500, -14.1300, -13.5700, -12.7400, -11.6900, 
+            -10.1100, -8.4900, -6.5500, -4.7400, -2.7300, -1.5200, -0.8300, -0.6000,
+            -0.5600 , -0.4900, -0.5400, -0.4200, -0.4700, -0.3900, -0.5000]
+
+    depthGULL = [4, 255, 307, 355, 407, 455, 497, 515, 537, 555, 577, 595, 622, 645, 667, 
+             676, 687, 690, 697, 699, 702, 705, 707]
+
+    # Load BedMachine dataset
+    filepath = "C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\BedMachineGreenland-2017-09-20.nc"
     
-    # Define the center in polarstereographic coords and the radius limits of the region you want to look at within BedMachine
-    x_center = -14960    # [m], polarstereographic x
-    y_center = -2116315     # [m], polarstereographic y # Lake 13 in the dataset
-    radius = 9000       # [m], x and y extent from the center which defines the bounding box
+    # Choose the center in polarstereographic coords and the radius limits of the region you want to look at within BedMachine
+    x_center = -184984    # [m], polarstereographic x
+    y_center = -2241487     # [m], polarstereographic y
+    radius = 6000       # [m], x and y extent from the center which defines the bounding box
+    width = radius*2
 
     # Run the read_bedmachine function to output corresponding data arrays
     (bedrock, bedrock_error, surface, thickness, x, y) = read_bedmachine(filepath, x_center, y_center, radius)
     xm, ym = np.meshgrid(x,y)
     h_bar = np.mean(thickness)
-    ALPHA = get_surface_slope(surface)
+    alpha = get_surface_slope(surface)
     cell_spacing = np.abs(x[0] - x[1])  # Get cell resolution (BedMachine == 150)
+
+    # Calculate slip ratio C
+    [Tvector_pchip, Amean_pchip] = calculate_A(h_bar, tempGULL, depthGULL, 'pchip')
+    Ud_pchip = calculate_Ud(h_bar, Amean_pchip, rhoi, g, alpha, n)
+    GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
+    v2011 = GPS2011_1h_GULL[4]
+    Us = np.nanmean(v2011)
+    Ub = Us - (Ud_pchip*secperyear)
+    C = Ub/(Ud_pchip*secperyear)
 
     # Non-dimensionalize cell-spacing
     cell_spacing_nd = cell_spacing/h_bar   # [unitless], non-dimensional cell-spacing
@@ -170,7 +196,7 @@ else: # Run the real world experiment here
     k_padded,l_padded = np.meshgrid(ar1_padded,ar2_padded)
 
     # Perform bedrock transfer functions to get surface outputs
-    Tsb_padded = TSB(k_padded, l_padded, m, C, ALPHA)   # Bed B to surface expression S
+    Tsb_padded = TSB(k_padded, l_padded, m, C, alpha)   # Bed B to surface expression S
 
     # Because both k and l have zeros in them, the transfer functions return a NaN in the first [0,0] entry
     # due to division by 0. We set this value to 0 to avoid this issue.
@@ -181,7 +207,7 @@ else: # Run the real world experiment here
 
     # Take the inverse fourier transform to go from spectral to x,y space and then redimensionalize
     Sb_padded = ifft2(Sb_padded_nd_ft) * h_bar + h_bar + np.mean(bedrock)
-    Sb_padded = Sb_padded[120:240, 120:240] + xm * cell_spacing_nd * ALPHA
+    Sb_padded = Sb_padded[int(width/cell_spacing):int(width/cell_spacing)*2 , int(width/cell_spacing):int(width/cell_spacing)*2] + xm * cell_spacing_nd * alpha
 
     difference_padded_slope = surface - Sb_padded.real
 
@@ -194,11 +220,4 @@ else: # Run the real world experiment here
     #plt.imshow(bedrock)
     #plt.plot(difference_padded_slope[60], color = 'r')
     #plt.plot(difference_padded_mean[60], color = 'b')
-    #plt.plot(difference_mean_1[60])
-    #plt.plot(difference_mean_10[60])
-    #plt.plot(difference_mean_25[60])
-    #plt.plot(difference_mean_50[60])
-    #plt.plot(difference_mean_75[60])
-    #plt.plot(difference_mean_100[60])
     #plt.axhline(y=0, color = 'r')
-# Then here the rest of the code will run as expected

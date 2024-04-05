@@ -77,13 +77,31 @@ print('Jeremy Akima Eta:  ' + str("%.7g" % eta_jer_akima) + ' kg m^-1 s^-1)' + '
 # by getting the surface velocities
 
 GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
+GPS2012_1h_GULL = get_GPS_data(2012, 1, 'GULL')
+t2011 = GPS2011_1h_GULL[0]
+t2012 = GPS2012_1h_GULL[0]
 v2011 = GPS2011_1h_GULL[4]
-Us = np.nanmean(v2011)
-Ub = Us - (Ud_pchip*secperyear)
-C = Ub/(Ud_pchip*secperyear)
+v2012 = GPS2012_1h_GULL[4]
+Us2011 = np.nanmean(v2011)
+Us2012 = np.nanmean(v2012)
 
 print('')
-print('Slip ratio C: ' + str(C))
+print('2011 mean Surface velocity: ' + str(Us2011) + ' m/yr')
+print('2012 mean Surface velocity: ' + str(Us2012) + ' m/yr')
+
+Ub2011 = Us2011 - (Ud_pchip*secperyear)
+Ub2012 = Us2012 - (Ud_pchip*secperyear)
+
+print('')
+print('2011 Basal velocity: ' + str(Ub2011) + ' m/yr')
+print('2012 Basal velocity: ' + str(Ub2012) + ' m/yr')
+
+C2011 = Ub2011/(Ud_pchip*secperyear)
+C2012 = Ub2012/(Ud_pchip*secperyear)
+
+print('')
+print('2011 Slip ratio C: ' + str(C2011))
+print('2012 Slip ratio C: ' + str(C2012))
 
 #--------------------------------------------------------------------
 # Here, I'm testing the different interpolations
@@ -106,3 +124,18 @@ ax1.invert_yaxis()
 ax1.set_title('Temperature interpolation, Hmean = ' + str(Hmean))
 ax1.axvline(x = 0, color = 'black', linewidth = 0.5)
 ax1.legend(loc = 'lower center', bbox_to_anchor=(.5, -0.27))
+
+#----------------------------------------------------------------------------------
+fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (20,6))
+
+ax.plot(t2011, v2011, 'b+', label = '2011')
+ax.plot(t2012, v2012, 'g+', label = '2012')
+ax.axhline(y = Us2011, color = 'red', linewidth = 1, label = 'mean 2011 vel')
+ax.axhline(y = Us2012, color = 'orange', linewidth = 1, label = 'mean 2012 vel')
+
+ax.set_xlabel('Day')
+ax.set_ylabel('Velocity (m/yr)')
+ax.set_title('Velocity profile at GULL borehole')
+ax.legend()
+
+plt.show()

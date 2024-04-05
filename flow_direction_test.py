@@ -62,7 +62,6 @@ bedrock_gaussian_sigmay_nd = bedrock_gaussian_sigmay/HMEAN   # [unitless]    , n
 bedrock_topg_delta_b_nd = create_gaussian_perturbation(bedrock_gaussian_amplitude, bedrock_gaussian_sigmax_nd, bedrock_gaussian_sigmay_nd, theta1, x, y)
 bedrock_topg_delta_b_nd_theta = create_gaussian_perturbation(bedrock_gaussian_amplitude, bedrock_gaussian_sigmax_nd, bedrock_gaussian_sigmay_nd, theta2, x, y)
 
-
 ## |--------- 1.5 Transform non-d perturbations to Fourier Space ----------| ##
 
 delta_b_nd_ft = fft2(bedrock_topg_delta_b_nd)               # Fourier transformed bedrock perturbation
