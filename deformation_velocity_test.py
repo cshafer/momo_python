@@ -19,7 +19,7 @@ from get_GPS_data import *
 # With our calculated mean A value, we can calculate deformation velocity, Ud. Then,
 # using either A or Ud, we can calculate an eta value. 
 
-Hmean = 707
+Hmean = 1500
 rhoi = 917
 g = 9.80665
 alpha = 0.02268    # At GULL borehole, surface slope measured to be 1.3 +- 0.2 degrees (Ryser et al., 2014)
@@ -28,12 +28,12 @@ secperyear = 365*24*60*60
 
 # The following arrays are the temperature and depth datapoints taken from the GULL
 # borehole (Ryser et al., 2014, Luthi et al., 2015)
-tempGULL = [-0.6500, -7.7500, -11.2700, -11.9500, -14.1300, -13.5700, -12.7400, -11.6900, 
+tempGULL = np.array([-0.6500, -7.7500, -11.2700, -11.9500, -14.1300, -13.5700, -12.7400, -11.6900, 
             -10.1100, -8.4900, -6.5500, -4.7400, -2.7300, -1.5200, -0.8300, -0.6000,
-            -0.5600 , -0.4900, -0.5400, -0.4200, -0.4700, -0.3900, -0.5000]
+            -0.5600 , -0.4900, -0.5400, -0.4200, -0.4700, -0.3900, -0.5000])
 
-depthGULL = [4, 255, 307, 355, 407, 455, 497, 515, 537, 555, 577, 595, 622, 645, 667, 
-             676, 687, 690, 697, 699, 702, 705, 707]
+depthGULL = np.array([4.0, 255.0, 307.0, 355.0, 407.0, 455.0, 497.0, 515.0, 537.0, 555.0, 577.0, 595.0, 622.0, 645.0, 667.0, 
+             676.0, 687.0, 690.0, 697.0, 699.0, 702.0, 705.0, 707.0])
 
 # Cuffey & Paterson (Table 3.4)
 # The following table is the A flow factor lookup table from Cuffey & Paterson (Table 3.4). Using our

@@ -5,21 +5,19 @@
 from scipy.interpolate import pchip_interpolate, Akima1DInterpolator
 import numpy as np
 import matplotlib.pyplot as plt
+from stretch import *
 
 def calculate_A(Hmean, Tborehole, Zborehole, interp):
-    
-    # Our goal is to come up with an A value that fits our region of study that we
-    # can use to calculate deformational velocity, Ud. To do that, we need a temperature
-    # profile from the region - this comes from temperature measurements made at depth 
-    # within boreholes. Depending on the thickness of our region (as long as it is relatively
-    # close or within the range of the provided borehole depth), we can interpolate the
-    # temperature values and apply it to our thickness range. Then, we use the A-T lookup
-    # table (Table 3.4 Cuffey & Paterson) and match our interpolated temperatures to 
-    # a range of A values. Then we take the mean of all of the A values to get a final
-    # mean A flow factor for our region. 
+
+    # If the average thickness of our region of interest is deeper than the depth of the available
+    # borehole, stretch the dataset so that the max value is equal to the mean thickness we want
+    if (Hmean > Zborehole[-1]):
+
+        # Strecth the dataset so that it extends to the full thickness
+        Zborehole = stretch(Zborehole, Zborehole[0], Hmean)
+
 
     # Use the mean thickness of our region and discretize it equally:
-
     z = np.arange(0, round(Hmean)+1, 0.5)
 
     # Then, using different interpolation methods (to test), we interpolate and extrapolate
