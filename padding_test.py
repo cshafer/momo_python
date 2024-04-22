@@ -31,16 +31,16 @@ depthGULL = [4, 255, 307, 355, 407, 455, 497, 515, 537, 555, 577, 595, 622, 645,
 filepath = "C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\BedMachineGreenland-2017-09-20.nc"
 
 # Define cell center and radius size
-x_center = -184984    # [m], polarstereographic x
-y_center = -2241487     # [m], polarstereographic y # Lake 13 in the dataset
-radius = 9000      # [m], x and y extent from the center which defines the bounding box
+x_center = -181636    # [m], polarstereographic x
+y_center = -2237217     # [m], polarstereographic y # Lake 13 in the dataset
+radius = 10500      # [m], x and y extent from the center which defines the bounding box
 width = radius*2
 
 # Get bedmachine data and calculate necessary values
 (bedrock, bedrock_error, surface, thickness, x, y) = read_bedmachine(filepath, x_center, y_center, radius)
 xm, ym = np.meshgrid(x,y)           # Get mesh of x and y vector ranges
 h_bar = np.mean(thickness)          # Get mean thickness
-alpha = get_surface_slope(surface)  # Get surface slope
+[alpha, flow_dir] = get_surface_slope(surface)  # Get surface slope
 cell_spacing = np.abs(x[0] - x[1])  # Get cell resolution (BedMachine == 150)
 
  # Calculate slip ratio C
@@ -48,9 +48,18 @@ cell_spacing = np.abs(x[0] - x[1])  # Get cell resolution (BedMachine == 150)
 Ud = calculate_Ud(h_bar, Amean_pchip, rhoi, g, alpha, n) * secperyear
 GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
 v2011 = GPS2011_1h_GULL[4]
+winter_v2011 = v2011[13921:]
+winter_Us = np.nanmean(winter_v2011)
+print("Mean 2011 Winter velocity: " + str(winter_Us))
 Us = np.nanmean(v2011)
+print("Mean 2011 yearly velocity: " + str(Us))
 Ub = Us - Ud
+winter_Ub = winter_Us - Ud
 C = Ub/Ud
+winter_C = winter_Ub/Ud
+
+print("Winter 2011 slip Ratio C: " + str(C))
+print("Yearly 2011 slip ratio C: " + str(winter_C))
 
 # Non-dimensionalize cell spacing 
 cell_spacing_nd = cell_spacing/h_bar   # [unitless], non-dimensional cell-spacing
@@ -96,8 +105,8 @@ Sb_padded = Sb_padded[int(width/cell_spacing):int(width/cell_spacing)*2 , int(wi
 Sb = ifft2(Sb_nd_ft) * h_bar + h_bar + np.mean(bedrock)
 
 # Take difference between actual surface and real surface
-difference_padded = (surface) - Sb_padded.real
-difference = (surface) - Sb.real
+difference_padded = surface - Sb_padded.real
+difference = surface - Sb.real
 
 #plt.imshow(Sb_padded.real)
 #plt.colorbar
@@ -172,7 +181,7 @@ ax5.set_xlabel('x extent (cells)')
 ax5.axhline(y=0, color = 'black')
 ax5.legend()
 
-
+print('')
 print('Mean thickness H: ' + str(h_bar) + ' m')
 print('')
 print('Surface slope alpha: ' + str(alpha) + ' radians')
