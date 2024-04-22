@@ -126,6 +126,8 @@ ax1.axvline(x = 0, color = 'black', linewidth = 0.5)
 ax1.legend(loc = 'lower center', bbox_to_anchor=(.5, -0.27))
 
 #----------------------------------------------------------------------------------
+# Plotting velocity for 2011 and 2012
+
 fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (20,6))
 
 ax.plot(t2011, v2011, 'b+', label = '2011')
