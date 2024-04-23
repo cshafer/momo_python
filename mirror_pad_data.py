@@ -1,6 +1,6 @@
 import numpy as np
 
-def pad_data(data_array):
+def mirror_pad_data(data_array):
     data_array_ud = np.flipud(data_array)
     data_array_lr = np.fliplr(data_array)
     data_array_corner = np.flipud(data_array_lr)
