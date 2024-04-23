@@ -38,4 +38,4 @@ def get_surface_slope(surface):
     flow_dir_degrees = ascent_dir_degrees + 180
 
 
-    return surface_slope_alpha, flow_dir_degrees
+    return surface_slope_alpha, alpha_x, alpha_y, flow_dir_degrees
