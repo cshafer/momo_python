@@ -3,10 +3,10 @@ import netCDF4 as nc
 import xarray as xr 
 
 
-def read_bedmachine(filepath, x_center, y_center, radius):
+def read_bedmachine(filepath, x_center, y_center, radius, cell_spacing):
     
     # Because bedmachine v5 has a resolution of 150m, we first round the given radius to the nearest 150m
-    rounded_radius = radius - (radius % 150)
+    rounded_radius = radius - (radius % cell_spacing)
 
     # Get the x and y limits that we're interested in
     xmin = x_center - rounded_radius
@@ -18,7 +18,7 @@ def read_bedmachine(filepath, x_center, y_center, radius):
     bedmachine = xr.open_dataset(filepath)
 
     # Select the region within bedmachine that we're interested in. This is our "box".
-    box = bedmachine.sel(x=slice(xmin, xmax), y=slice(ymax, ymin))
+    box = bedmachine.sel(x=slice(xmin, xmax + cell_spacing), y=slice(ymax, ymin - cell_spacing))
 
     # Read the data
     bedrock = box.variables['bed'].values
