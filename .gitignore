@@ -12,3 +12,6 @@ __pycache__/get_GPS_data.cpython-312.pyc
 __pycache__/get_velocity_data.cpython-312.pyc
 __pycache__/test_stretch.cpython-312.pyc
 __pycache__/stretch.cpython-312.pyc
+Interactive - padding_test.py.ipynb
+__pycache__/mirror_pad_data.cpython-312.pyc
+__pycache__/correct_and_transform_bedrock.cpython-312.pyc

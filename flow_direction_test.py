@@ -89,6 +89,8 @@ Sb = ifft2(Sb_nd_ft) * HMEAN
 Sb_theta = ifft2(Sb_nd_ft_theta) * HMEAN
 
 
+## \---------- 1.7 Plotting ----------\ ##
+
 fig = plt.figure(figsize= (14,11))
 ax1 = plt.subplot2grid((2, 2), (0, 0)) 
 ax2 = plt.subplot2grid((2, 2), (0, 1))
