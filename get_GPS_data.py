@@ -2,13 +2,10 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_GPS_data(year, time, name):
+def get_GPS_data(filepath, year, time, name):
 
-    # Source directory
-    directory = 'C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\GPS_Data\\'
-    
     # Load data from GPS station matlab file
-    matlab_data = loadmat(directory + 'GPS' + str(year) + '_' + str(time) + 'h_' + str(name) + '.mat')
+    matlab_data = loadmat(filepath + 'GPS' + str(year) + '_' + str(time) + 'h_' + str(name) + '.mat')
     
     # Get the receiver name
     receiver_name = matlab_data['stn_receiver_' + str(time) + 'h'][0][0][0]

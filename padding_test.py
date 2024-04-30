@@ -68,6 +68,14 @@ yp = np.arange(-radius, radius + cell_spacing, cell_spacing)    # [m], y vector 
 alpha, alpha_x, alpha_y, flow_dir = get_surface_slope(surface)  # Get surface information
 mean_sloped_plane = x_plane * alpha_x + y_plane * alpha_y       # [m], mean sloped plane
 
+fig02 = plt.figure()
+im02 = plt.imshow(np.flipud(mean_sloped_plane), extent = [-192125, -171125, -2247725, -2226725])
+plt.title('Mean sloped plane')
+plt.colorbar()
+plt.xlabel('polarstereographic x (m)')
+plt.ylabel('polarstereographic y (m)')
+plt.show()
+
 #####################################################################################################
 # Calculate background slip ratio C for the region of interest to be used within transfer functions #
 #####################################################################################################
@@ -93,7 +101,10 @@ depthGULL = [4, 255, 307, 355, 407, 455, 497, 515, 537, 555, 577, 595, 622, 645,
 Ud = calculate_Ud(h_bar, Amean, rhoi, g, alpha, n) * secperyear     # [m/yr], deformation velocity Ud
 
 # (4) Load GPS data and get velocity data
-GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')     # GPS data  
+
+GPS_data_filepath = 'C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\GPS_Data\\'
+
+GPS2011_1h_GULL = get_GPS_data(GPS_data_filepath, 2011, 1, 'GULL')     # GPS data  
 v2011 = GPS2011_1h_GULL[4]
 winter_v2011 = v2011[13921:]
 
@@ -106,8 +117,9 @@ winter_Us = np.nanmean(winter_v2011)    # [m/yr], Average surface velocity for w
 winter_Ub = winter_Us - Ud              # [m/yr], Winter basal velocity
 winter_C = winter_Ub/Ud                 # [unitless], Winter slip ratio, C
 
-
-# Begin bedrock data set up for 
+###########################################################################
+# Begin bedrock data pre-processing for input into the transfer functions #
+###########################################################################
 
 # Create two different bedrock arrays to test. The first one will be without corrections, so
 # no padding, no window tapering, no rotation, and later no correction to the surface slope. The second 
@@ -117,10 +129,12 @@ winter_C = winter_Ub/Ud                 # [unitless], Winter slip ratio, C
 # Non-dimensionalize cell spacing 
 cell_spacing_nd = cell_spacing/h_bar   # [unitless], non-dimensional cell-spacing
 
+# No corrections
 bedrock_no_corr = bedrock - b_bar           # Normalize around mean
 bedrock_no_corr = bedrock_no_corr/h_bar     # Non-dimensionalize
 bedrock_no_corr = fft2(bedrock_no_corr)     # Fourier transform 
 
+# Corrections
 bedrock_corr = correct_and_transform_bedrock(bedrock, b_bar, h_bar, flow_dir)
 
 ######################
