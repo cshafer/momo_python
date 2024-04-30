@@ -6,7 +6,6 @@ from transfer_function import TSB, TUB, TVB, TSC, TUC, TVC # These are from Ocke
 from create_gaussian_perturbation import *
 from read_bedmachine import *
 from get_surface_slope import *
-from pad_data import *
 
 # IDEALIZED EXPERIMENT
 
@@ -50,7 +49,7 @@ y_array = np.arange(bottom_y, top_y, cell_spacing_nd)
 # Define the amplitude and the width of a single Gaussian bed bump
 bedrock_gaussian_amplitude = 1     # [unitless]    , amplitude of the Gaussian bedrock perturbation
 bedrock_gaussian_sigmax = 7000      # [m]           , width of the Gaussian in the x direction
-bedrock_gaussian_sigmay = 15000      # [m]           , width of the Guassian in the y direction
+bedrock_gaussian_sigmay = 7000      # [m]           , width of the Guassian in the y direction
 theta1 = 0
 theta2 = np.pi/4
 

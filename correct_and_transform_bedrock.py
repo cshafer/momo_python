@@ -22,6 +22,14 @@ def correct_and_transform_bedrock(bedrock, b_bar, h_bar, flow_dir):
     plt.imshow(bedrock_mirror_padded)
     plt.show()
 
+    fig01 = plt.figure()
+    im01 = plt.imshow(bedrock_mirror_padded, extent = [-192125, -171125, -2247725, -2226725])
+    plt.title('Reflective center padding applied to bedrock')
+    plt.colorbar()
+    plt.xlabel('polarstereographic x (m)')
+    plt.ylabel('polarstereographic y (m)')
+    plt.show()
+
     # Create cosine window to taper padded bedrock
     cosine_window1d = np.abs(tukey(len(bedrock_mirror_padded)))
     cosine_window2d = np.sqrt(np.outer(cosine_window1d, cosine_window1d))
