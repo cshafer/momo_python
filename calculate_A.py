@@ -45,7 +45,7 @@ def calculate_A(Hmean, Tborehole, Zborehole, interp):
     # Then we calculate the average A value of the A vector:
     Amean = np.mean(A)
 
-    return [Tvector, Amean]
+    return Tvector, Amean
 
 
 

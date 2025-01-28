@@ -1,8 +1,6 @@
 
 import numpy as np
 
-# Steady state transfer functions in Fourier space
-
 def TSB(k, l, m, C, alpha):
     j2 = k ** 2 + l ** 2
     TSBtop = k * ( 1 + m * (1 + 2 * j2 * C))
@@ -61,3 +59,46 @@ def TVC(k, l, m, C, alpha_s):
     TVCbase = TVCbase1 * TVCbase2
     TVC = TVCtop/TVCbase
     return TVC
+
+# Transient additions to the transfer functions
+
+def TSC_transient(k, l, m, C, t, alpha):
+    j2 = k**2 + l**2
+    i = complex(0,1)
+    cot = (1/np.tan(alpha))
+    xi = (m*C)**(-1) + 2*j2
+    p = i*k*C + (i*k - j2*cot) / xi
+
+    TSC_transient = i*k*(np.exp(p*t) - 1) / (m*p*xi)
+    return TSC_transient
+
+
+def TUC_transient(k, l, m, C, t, alpha):
+    j2 = k**2 + l**2
+    i = complex(0,1)
+    cot = (1/np.tan(alpha))
+    xi = (m*C)**(-1) + 2*j2
+    phi = (m*C)**(-1) + (1/2)*(k**2 + 4*l**2)
+    nu = (m*C)**(-1) + (1/2)*j2
+    p = i*k*C + (i*k - j2*cot) / xi
+
+    TUC_transient_top = (1/m) * ( (np.exp(p*t) - 1)*(l**2*cot - i*k*C) + np.exp(p*t)*p*phi)
+    TUC_transient_bot = p*xi*((m*C)**(-1) + nu)
+
+    TUC_transient = TUC_transient_top/TUC_transient_bot
+    return TUC_transient
+
+def TVC_transient(k, l, m, C, t, alpha):
+    j2 = k**2 + l**2
+    i = complex(0,1)
+    cot = (1/np.tan(alpha))
+    xi = (m*C)**(-1) + 2*j2
+    phi = (m*C)**(-1) + (1/2)*(k**2 + 4*l**2)
+    nu = (m*C)**(-1) + (1/2)*j2
+    p = i*k*C + (i*k - j2*cot) / xi
+
+    TVC_transient_top = k*l*(1/m)*( (1 - np.exp(p*t))*(cot - (3/2)*i*k*C) - (3/2)*np.exp(p*t)*p)
+    TVC_transient_bot = p*xi*((m*C)**(-1) + nu)
+
+    TVC_transient = TVC_transient_top/TVC_transient_bot
+    return TVC_transient

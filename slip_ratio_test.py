@@ -1,12 +1,10 @@
-# Deformation velocity test
+# Slip ratio test using 
 
 from calculate_A import *
 from calculate_Ud import *
 from calculate_eta import *
 from get_GPS_data import *
 
-# Our goal is to come up with an A value that fits our region of study that we
-# can use to calculate deformational velocity, Ud.
 
 # To do that, we need a temperature profile from the region - this comes from 
 # temperature measurements made at depth within boreholes. Depending on the thickness
@@ -19,7 +17,7 @@ from get_GPS_data import *
 # With our calculated mean A value, we can calculate deformation velocity, Ud. Then,
 # using either A or Ud, we can calculate an eta value. 
 
-Hmean = 1500
+Hmean = 700
 rhoi = 917
 g = 9.80665
 alpha = 0.02268    # At GULL borehole, surface slope measured to be 1.3 +- 0.2 degrees (Ryser et al., 2014)
@@ -76,8 +74,10 @@ print('Jeremy Akima Eta:  ' + str("%.7g" % eta_jer_akima) + ' kg m^-1 s^-1)' + '
 # Using Ud that we calculated earlier, we can then determine the slip ratio C of our region
 # by getting the surface velocities
 
-GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
-GPS2012_1h_GULL = get_GPS_data(2012, 1, 'GULL')
+GPS_data_filepath = 'C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\GPS_Data\\'
+
+GPS2011_1h_GULL = get_GPS_data(GPS_data_filepath, 2011, 1, 'GULL')
+GPS2012_1h_GULL = get_GPS_data(GPS_data_filepath, 2012, 1, 'GULL')
 t2011 = GPS2011_1h_GULL[0]
 t2012 = GPS2012_1h_GULL[0]
 v2011 = GPS2011_1h_GULL[4]

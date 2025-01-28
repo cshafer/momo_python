@@ -7,7 +7,7 @@ from transfer_function import TSB, TUB, TVB, TSC, TUC, TVC # These are from Ocke
 from create_gaussian_perturbation import *
 from read_bedmachine import *
 from get_surface_slope import *
-from pad_data import *
+from mirror_pad_data import *
 from calculate_A import *
 from calculate_Ud import *
 from calculate_eta import *
@@ -154,7 +154,7 @@ else: # Run the real world experiment here
             -0.5600 , -0.4900, -0.5400, -0.4200, -0.4700, -0.3900, -0.5000]
 
     depthGULL = [4, 255, 307, 355, 407, 455, 497, 515, 537, 555, 577, 595, 622, 645, 667, 
-             676, 687, 690, 697, 699, 702, 705, 707]
+                676, 687, 690, 697, 699, 702, 705, 707]
 
     # Load BedMachine dataset
     filepath = "C:\\Users\\casha\\Documents\\Research-Courtney_PC\\Moulin Model\\LAKE_DRAINAGE_CREVASSE_MODEL_JSTOCK\\BedMachineGreenland-2017-09-20.nc"
@@ -164,16 +164,16 @@ else: # Run the real world experiment here
     y_center = -2241487     # [m], polarstereographic y
     radius = 6000       # [m], x and y extent from the center which defines the bounding box
     width = radius*2
+    cell_spacing = 150
 
     # Run the read_bedmachine function to output corresponding data arrays
-    (bedrock, bedrock_error, surface, thickness, x, y) = read_bedmachine(filepath, x_center, y_center, radius)
+    (bedrock, bedrock_error, surface, thickness, x, y) = read_bedmachine(filepath, x_center, y_center, radius, cell_spacing)
     xm, ym = np.meshgrid(x,y)
     h_bar = np.mean(thickness)
     alpha = get_surface_slope(surface)
-    cell_spacing = np.abs(x[0] - x[1])  # Get cell resolution (BedMachine == 150)
 
     # Calculate slip ratio C
-    [Tvector_pchip, Amean_pchip] = calculate_A(h_bar, tempGULL, depthGULL, 'pchip')
+    Tvector_pchip, Amean_pchip = calculate_A(h_bar, tempGULL, depthGULL, 'pchip')
     Ud_pchip = calculate_Ud(h_bar, Amean_pchip, rhoi, g, alpha, n)
     GPS2011_1h_GULL = get_GPS_data(2011, 1, 'GULL')
     v2011 = GPS2011_1h_GULL[4]
@@ -187,7 +187,7 @@ else: # Run the real world experiment here
     # Correct bed topography using mean and slope then non-dimensionalize
     bedrock_corr = bedrock - np.mean(bedrock)
     bedrock_corr_nd = bedrock_corr/h_bar
-    bedrock_corr_nd_padded = pad_data(bedrock_corr_nd)
+    bedrock_corr_nd_padded = mirror_pad_data(bedrock_corr_nd)
     bedrock_corr_nd_padded_ft = fft2(bedrock_corr_nd_padded)
 
     # Get k and l

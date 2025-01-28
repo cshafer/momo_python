@@ -21,8 +21,3 @@ def create_gaussian_perturbation(A, sigma_x, sigma_y, theta, x, y):
     gaussian_perturbation = A * np.exp(-(a*(np.power(x,2)) + 2*b*(x*y) + c*(np.power(y,2))))
     return gaussian_perturbation
 
-
-# testing
-#B = create_gaussian_bed(40, 4, 8, 30, 30, 150/1000)
-#print(B)
-#plt.imshow(B, extent=[-30/2, 30/2, -30/2, 30/2], interpolation='none')

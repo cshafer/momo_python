@@ -12,5 +12,7 @@ def calculate_Ud(Hmean, Amean, rhoi, g, alpha, n):
     # Output is a cumulative array, total sum is final value
     Ud = Ud[-1]
 
-    return Ud
+    Ud = Ud * 365*24*60*60
+
+    return Ud   # [m/yr]
 
